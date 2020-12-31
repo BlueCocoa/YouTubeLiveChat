@@ -32,6 +32,12 @@ class YouTubeLiveChatMessage(object):
     def timestamp(self):
         return self.content['timestampText']['simpleText']
 
+    def author(self):
+        return self.content['authorName']['simpleText']
+
+    def authorPhoto(self):
+        return self.content['authorPhoto']['thumbnails'][1]['url']
+
 
 class YouTubeLiveChat(object):
     def __init__(self, url: str, quiet=False):
@@ -113,7 +119,7 @@ if __name__ == '__main__':
 
     def dump_to_csv(save_to: str):
         csvfile = open(save_to, 'w', newline='')
-        writer = csv.DictWriter(csvfile, quoting=csv.QUOTE_MINIMAL, fieldnames=['timestamp', 'text'])
+        writer = csv.DictWriter(csvfile, quoting=csv.QUOTE_MINIMAL, fieldnames=['timestamp', 'author', 'text', 'photo'])
         writer.writeheader()
         line_written = [0]
 
@@ -121,7 +127,7 @@ if __name__ == '__main__':
             for m in msgs:
                 text = m.text().strip()
                 if len(text) > 0:
-                    writer.writerow({'timestamp': m.timestamp(), 'text': text})
+                    writer.writerow({'timestamp': m.timestamp(), 'author': m.author(), 'text': text, 'photo': m.authorPhoto()})
                     line_written[0] += 1
             if not args.quiet:
                 print(f'[+] total {line_written[0]} lines written')
@@ -131,3 +137,4 @@ if __name__ == '__main__':
 
     liveChat = YouTubeLiveChat(args.url, args.quiet)
     liveChat.downloadAll(dump_to_csv(args.output))
+
